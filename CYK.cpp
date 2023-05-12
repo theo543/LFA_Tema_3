@@ -8,6 +8,7 @@
 #include "Grammar_FNC.h"
 #include "color.hpp"
 const std::string file = "cyk.txt";
+const std::string tests_file = "cyk_tests.txt";
 std::string read_file(const std::string& path) {
     std::ifstream in(path);
     std::stringstream buffer;
@@ -75,6 +76,7 @@ int main () {
         return 1;
     }
     Grammar_FNC grammar;
+    color("blue", "Reading grammar from " + file + "...", true);
     auto tokens = tokenize(read_file(file));
     IDs nt_id;
     auto tok = tokens.begin();
@@ -150,6 +152,42 @@ int main () {
     for(const auto &empty : grammar.getEmptyNonterminals()) {
         color("yellow", "Warning: nonterminal " + nt_id.getById(empty) + " (" + std::to_string(empty) + ") leads to no productions", true);
     }
+    if(!std::filesystem::exists(tests_file) || std::filesystem::is_directory(tests_file)) {
+        color("yellow", "File " + tests_file + " not found! Skipping tests.", true);
+    } else {
+        color("blue", "Running tests from " + tests_file + "...", true);
+        bool fail = false;
+        std::string input, expected;
+        std::ifstream tests(tests_file);
+        int line = 0;
+        while(std::getline(tests, expected)) {
+            std::getline(tests, input);
+            while(input.ends_with("\r") || input.ends_with("\n"))
+                input.pop_back();
+            line += 2;
+            bool ex;
+            if(expected.starts_with("TRUE:"))
+                ex = true;
+            else if(expected.starts_with("FALSE:"))
+                ex = false;
+            else {
+                color("red", "Expected TRUE: or FALSE: at line " + std::to_string(line), true);
+                return 1;
+            }
+            bool result = grammar.cyk_check(input);
+            if(result != ex) {
+                color("red",
+                      std::string("Test got wrong result at line ") + std::to_string(line) + "!\n" +
+                      "Input: " + input + "\n" +
+                      "Expected output: " + std::string(ex ? "TRUE\n" : "FALSE\n") +
+                      "Actual output: " + std::string(result ? "TRUE\n" : "FALSE\n"), false);
+                fail = true;
+            }
+        }
+        if(!fail)
+            color("green", "All tests passed!", true);
+    }
+    color("black", "Manual input:", true);
     while(true) {
         std::string input;
         std::getline(std::cin, input);
