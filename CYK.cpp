@@ -26,9 +26,9 @@ std::vector<Token> tokenize(const std::string& data) {
     std::size_t line = 1;
     for(int x = 0;x<data.size();x++) {
         switch(data[x]){
-            case '\r':
             case '\n':
-                line++;
+                [[fallthrough]];
+            case '\r':
                 [[fallthrough]];
             case ' ':
                 if(begin != -1) {
@@ -38,6 +38,7 @@ std::vector<Token> tokenize(const std::string& data) {
                 }
                 if(data[x] == '\n') {
                     tokens.emplace_back("\n", line - 1);
+                    line++;
                 }
                 break;
             default:
@@ -84,7 +85,13 @@ int main () {
     tok++;
     {
         auto expr_left = tokens.end();
+        bool expr_left_confirmed = false;
         auto expr_mid = tokens.end(), expr_right = expr_mid;
+        auto end_expr = [&]() {
+            expr_left = expr_mid = expr_right = tokens.end();
+            expr_left_confirmed = false;
+            return 0;
+        };
         auto add_unit_prod = [&]() {
             if(expr_mid->text == "__SPACE__")
                 expr_mid->text = " ";
@@ -92,14 +99,14 @@ int main () {
                 color("red", "Syntax error: multiple characters in unit production at line " + std::to_string(tok->line), true);
             assert(expr_right == tokens.end());
             grammar.addUnitProd({nt_id[expr_left->text], expr_mid->text.at(0)});
-            expr_left = expr_mid = tokens.end();
+            end_expr();
             return 0;
         };
         auto add_prod = [&]() {
             assert(expr_mid != tokens.end());
             assert(expr_right != tokens.end());
             grammar.addProd({nt_id[*expr_left], nt_id[*expr_mid], nt_id[*expr_right]});
-            expr_left = expr_mid = expr_right = tokens.end();
+            end_expr();
             return 0;
         };
         auto prod_expr_end = [&]() {
@@ -109,10 +116,10 @@ int main () {
             } else if(expr_mid != tokens.end()) {
                 return add_unit_prod();
             } else if(expr_left != tokens.end()) {
-                color("red", "Syntax error: incomplete production at line " + std::to_string(tok->line), true);
+                color("red", "Syntax error: incomplete production before | at line " + std::to_string(tok->line), true);
                 return 1;
             } else {
-                color("red", "Syntax error: expected production at line " + std::to_string(tok->line), true);
+                color("red", "Syntax error: expected production before | at line " + std::to_string(tok->line), true);
                 return 1;
             }
         };
@@ -120,6 +127,10 @@ int main () {
             assert(!tok->text.empty());
             assert((tok->text == "\n") || !(tok->text.contains('\n')));
             assert(!tok->text.contains('\r'));
+            if(tok->line == 1 && tok->text != "\n") {
+                color("red", "Syntax error: line 1 should only contain the start symbol", true);
+                return 1;
+            }
             if(tok->text.starts_with("\n")) {
                 assert(tok->text == "\n");
                 if(expr_left != tokens.end()) {
@@ -129,12 +140,28 @@ int main () {
                 continue;
             } else if(tok->text == "|") {
                 auto saved_left = expr_left;
+                auto saved_left_confirmed = expr_left_confirmed;
                 if(prod_expr_end())
                     return 1;
                 expr_left = saved_left;
+                expr_left_confirmed = saved_left_confirmed;
+            } else if(tok->text == "->") {
+                if(expr_left == tokens.end()) {
+                    color("red", "Syntax error: expected nonterminal before -> at line " + std::to_string(tok->line), true);
+                    return 1;
+                }
+                if(expr_left_confirmed) {
+                    color("red", "Syntax error: multiple -> at line " + std::to_string(tok->line), true);
+                    return 1;
+                }
+                expr_left_confirmed = true;
             } else {
                 if(expr_left == tokens.end())
                     expr_left = tok;
+                else if(!expr_left_confirmed) {
+                    color("red", "Syntax error: expected -> before nonterminal at line " + std::to_string(tok->line), true);
+                    return 1;
+                }
                 else if(expr_mid == tokens.end())
                     expr_mid = tok;
                 else if(expr_right == tokens.end())
@@ -190,7 +217,8 @@ int main () {
     color("black", "Manual input:", true);
     while(true) {
         std::string input;
-        std::getline(std::cin, input);
+        if(!std::getline(std::cin, input)) break;
+        if(input.empty()) continue;
         if (input == "exit") break;
         if (grammar.cyk_check(input))
             color("green", "Accepted!", true);
