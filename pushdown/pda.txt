@@ -1,0 +1,21 @@
+BOTH
+9
+0 1 a Z AZ
+0 1 a A AA
+1 0 a A A
+0 2 b A BBBA
+2 2 b B BBBB
+2 3 c B _
+3 3 d A _
+3 3 d B _
+3 4 _ Z _
+1
+4
+2
+aaaabcccdd
+aabcccd
+4
+aabcccdd
+bccc
+aad
+abcd

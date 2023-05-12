@@ -13,4 +13,13 @@ if(PUSHDOWN_SANITIZE)
             )
 endif()
 
-add_executable(pushdown pushdown.cpp)
+add_executable(pushdown pushdown.cpp PushdownFSM.cpp PushdownFSM.h color.hpp)
+add_custom_target(copy_pushdown_files)
+add_custom_command(TARGET copy_pushdown_files
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_CURRENT_SOURCE_DIR}/pda.txt ${CMAKE_CURRENT_BINARY_DIR}/pda.txt
+        COMMENT "Copying pda.txt"
+        VERBATIM
+        DEPENDS {CMAKE_CURRENT_SOURCE_DIR}/pda.txt
+)
+add_dependencies(pushdown copy_pushdown_files)
