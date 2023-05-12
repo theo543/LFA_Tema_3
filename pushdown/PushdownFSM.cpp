@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <stdexcept>
+#include <cassert>
 #include "PushdownFSM.h"
 
 void PushdownFSM::add_transition(const Transition &trans) {
@@ -40,12 +41,15 @@ bool PushdownFSM::try_accept(const std::string &word) {
                 if(newStack.empty()) {
                     if((accept_mode == AcceptMode::EMPTY_STACK && thread.sym == word.end()) ||
                        (accept_mode == AcceptMode::BOTH && thread.sym == word.end() && final_states.contains(thread.state))) return true;
+                    return false;
                 }
                 if(accept_mode == AcceptMode::FINAL_STATE && thread.sym == word.end() && final_states.contains(thread.state)) return true;
                 next_tick.push_back(Thread{trans.to_state, trans.from_symbol == 0 ? thread.sym : thread.sym + 1, std::move(newStack)});
                 return false;
             };
             if(thread.sym != word.end()) {
+                assert(!thread.stack.empty());
+                assert(thread.sym != word.end());
                 for (const auto &trans: transitions[{thread.state, thread.stack.back(), *thread.sym}]) {
                     if(procTrans(trans)) return true;
                 }
