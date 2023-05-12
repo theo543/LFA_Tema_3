@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.20)
 if(NOT CMAKE_CXX_STANDARD EQUAL 23)
     message(FATAL_ERROR "C++23 is required")
 endif()
-option(SANITIZE "Enable sanitizers" OFF)
-if(SANITIZE)
+option(CYK_SANITIZE "Enable sanitizers" OFF)
+if(CYK_SANITIZE)
     message(STATUS "Sanitizers enabled")
     if(WIN32)
         message(WARNING "Sanitizers may fail to link on Windows")
@@ -12,6 +12,7 @@ if(SANITIZE)
             "-Wall -Wextra -Wno-sign-compare -pedantic -fsanitize=address,leak,undefined -fno-omit-frame-pointer -g"
             )
 endif()
+
 add_executable(CYK CYK.cpp Grammar_FNC.h Grammar_FNC.cpp Array3D.h Array3D.tpp color.hpp)
 add_custom_target(copy_cyk_files)
 add_custom_command(TARGET copy_cyk_files
