@@ -4,7 +4,7 @@
 #include "PushdownFSM.h"
 
 void PushdownFSM::add_transition(const Transition &trans) {
-    transitions[{trans.from_stack, trans.from_state, trans.from_symbol}].push_back(trans);
+    transitions[{trans.from_state, trans.from_stack, trans.from_symbol}].push_back(trans);
 }
 
 void PushdownFSM::add_final_state(std::size_t state) {
@@ -37,13 +37,13 @@ bool PushdownFSM::try_accept(const std::string &word) {
             const auto procTrans = [&](const Transition &trans) -> bool {
                 auto newStack = thread.stack;
                 newStack.pop_back();
-                newStack.insert(newStack.begin(), trans.to_stack.rbegin(), trans.to_stack.rend());
+                newStack.insert(newStack.end(), trans.to_stack.rbegin(), trans.to_stack.rend());
+                if(accept_mode == AcceptMode::FINAL_STATE && thread.sym == word.end() && final_states.contains(trans.to_state)) return true;
                 if(newStack.empty()) {
                     if((accept_mode == AcceptMode::EMPTY_STACK && thread.sym == word.end()) ||
-                       (accept_mode == AcceptMode::BOTH && thread.sym == word.end() && final_states.contains(thread.state))) return true;
+                       (accept_mode == AcceptMode::BOTH && thread.sym == word.end() && final_states.contains(trans.to_state))) return true;
                     return false;
                 }
-                if(accept_mode == AcceptMode::FINAL_STATE && thread.sym == word.end() && final_states.contains(thread.state)) return true;
                 next_tick.push_back(Thread{trans.to_state, trans.from_symbol == 0 ? thread.sym : thread.sym + 1, std::move(newStack)});
                 return false;
             };

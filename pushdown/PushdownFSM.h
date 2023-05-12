@@ -17,6 +17,8 @@ public:
         std::size_t from_state, from_stack, to_state;
         char from_symbol;
         std::vector<std::size_t> to_stack;
+        Transition(std::size_t from_state, std::size_t from_stack, char from_symbol, std::size_t to_state, std::vector<std::size_t> to_stack) :
+                from_state(from_state), from_stack(from_stack), to_state(to_state), from_symbol(from_symbol), to_stack(std::move(to_stack)) {}
     };
     void add_transition(const Transition &trans);
     void add_final_state(std::size_t state);
