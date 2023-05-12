@@ -12,12 +12,20 @@ if(SANITIZE)
             )
 endif()
 add_executable(CYK CYK.cpp Grammar_FNC.h Grammar_FNC.cpp Array3D.h Array3D.tpp color.hpp)
-add_custom_target(copy_cyk.txt)
-add_custom_command(TARGET copy_cyk.txt
+add_custom_target(copy_cyk_files)
+add_custom_command(TARGET copy_cyk_files
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_CURRENT_SOURCE_DIR}/cyk.txt ${CMAKE_CURRENT_BINARY_DIR}/cyk.txt
         COMMENT "Copying cyk.txt"
         VERBATIM
         DEPENDS {CMAKE_CURRENT_SOURCE_DIR}/cyk.txt
 )
-add_dependencies(CYK copy_cyk.txt)
+add_custom_command(TARGET copy_cyk_files
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_CURRENT_SOURCE_DIR}/cyk_tests.txt ${CMAKE_CURRENT_BINARY_DIR}/cyk_tests.txt
+        COMMENT "Copying cyk_tests.txt"
+        VERBATIM
+        DEPENDS {CMAKE_CURRENT_SOURCE_DIR}/cyk_tests.txt
+)
+add_dependencies(CYK copy_cyk_files)
+add_executable(recgen recgen.cpp)

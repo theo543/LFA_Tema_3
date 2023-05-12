@@ -8,19 +8,23 @@ public:
     struct UnitProd{
         std::size_t in_symbol;
         char out_text;
-        UnitProd(int in_symbol, char out_text) : in_symbol(in_symbol), out_text(out_text) {}
+        UnitProd(std::size_t in_symbol, char out_text) : in_symbol(in_symbol), out_text(out_text) {}
     };
     struct Prod {
         std::size_t in_symbol;
         std::size_t out_left_symbol;
         std::size_t out_right_symbol;
-        Prod(int in_symbol, int out_left_symbol, int out_right_symbol) : in_symbol(in_symbol), out_left_symbol(out_left_symbol), out_right_symbol(out_right_symbol) {}
+        Prod(std::size_t in_symbol, std::size_t out_left_symbol, std::size_t out_right_symbol) : in_symbol(in_symbol), out_left_symbol(out_left_symbol), out_right_symbol(out_right_symbol) {}
     };
     void addUnitProd(UnitProd);
     void addProd(Prod);
-    bool cyk_check(const std::string &word, std::size_t start_nonterminal);
+    bool cyk_check(const std::string &word);
     [[nodiscard]] std::size_t getMaxNonterminals() const;
+    [[nodiscard]] std::vector<std::size_t> getUnreachableNonterminals() const;
+    [[nodiscard]] std::vector<std::size_t> getEmptyNonterminals() const;
+    void set_start_symbol(std::size_t start);
 private:
+    std::size_t start_symbol = 0;
     std::vector<UnitProd> unitProds{};
     std::vector<Prod> prods{};
 };
