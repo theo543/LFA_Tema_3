@@ -5,7 +5,8 @@
 #include <map>
 #include <algorithm>
 #include <cassert>
-
+const int SUCCESS_EXIT_CODE = 0;
+const int FAILURE_EXIT_CODE = 1;
 const std::string pda_file = "pda.txt";
 int main() {
     PushdownFSM fsm;
@@ -55,6 +56,7 @@ int main() {
         file >> final_state;
         fsm.add_final_state(final_state);
     }
+    bool success = true;
     std::size_t accepting_tests;
     file >> accepting_tests;
     color("blue", "Running " + std::to_string(accepting_tests) + " accepting tests...", true);
@@ -65,6 +67,7 @@ int main() {
         if(accepts) {
             color("green", "Accepted: " + test, true);
         } else {
+            success = false;
             color("red", "Rejected: " + test, true);
         }
     }
@@ -76,10 +79,11 @@ int main() {
         file >> test;
         bool accepts = fsm.try_accept(test);
         if(accepts) {
+            success = false;
             color("red", "Accepted: " + test, true);
         } else {
             color("green", "Rejected: " + test, true);
         }
     }
-    return 0;
+    return success ? SUCCESS_EXIT_CODE : FAILURE_EXIT_CODE;
 }

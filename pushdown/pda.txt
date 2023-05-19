@@ -1,23 +1,41 @@
 BOTH
 0
 Z
-9
-0 1 a Z AZ
-0 1 a A AA
-1 0 a A A
-0 2 b A BBBA
-2 2 b B BBBB
-2 3 c B _
-3 3 d A _
-3 3 c B _
-3 4 _ Z _
+18
+0 0 a B AB
+0 0 a A AA
+0 0 a Z AZ
+0 0 b A BA
+0 0 b B BB
+0 0 b Z BZ
+0 1 _ Z Z
+0 1 _ A A
+0 1 _ B B
+0 1 a Z Z
+0 1 a A A
+0 1 a B B
+0 1 b Z Z
+0 1 b A A
+0 1 b B B
+1 1 a A _
+1 1 b B _
+1 2 _ Z _
 1
-4
 2
-aaaabcccdd
-aabcccd
-4
-aabcccdd
-bccc
-aad
-abcd
+10
+aaabbaaa
+babaabab
+abbbbbbbbbba
+ababaababa
+aaabaaa
+bbbbbabbbbb
+bababaaababab
+aba
+bab
+aaa
+5
+aaaabbb
+bbbbbbaaa
+abababbabaababab
+baaaaaa
+baba
